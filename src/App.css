@@ -1,0 +1,13 @@
+.App {
+  background: #f7f8f9;
+  height: 100vh;
+  padding-top: 20px;
+}
+
+.App .k-common-pdf-viewer {
+  margin: 0 auto;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}

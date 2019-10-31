@@ -1,0 +1,49 @@
+{
+  "name": "react-pdfviewer",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@types/jest": "24.0.18",
+    "@types/node": "12.7.12",
+    "@types/pdfjs-dist": "^2.1.2",
+    "@types/react": "16.9.5",
+    "@types/react-dom": "16.9.1",
+    "@types/react-pdf": "^4.0.3",
+    "@types/react-window": "^1.8.1",
+    "eslint-plugin-react-hooks": "^2.1.2",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
+    "react-pdf": "^4.1.0",
+    "react-scripts": "3.2.0",
+    "react-window": "^1.8.5",
+    "typescript": "3.6.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app",
+    "plugins": [
+      "react-hooks"
+    ],
+    "rules": {
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
