@@ -1,4 +1,4 @@
-.k-common-pdf-viewer {
+.pdf-viewer {
   width: 680px;
   height: 720px;
   background: rgb(82, 86, 89);
@@ -9,7 +9,7 @@
   margin: 0 auto;
 }
 
-.k-common-pdf-viewer-header {
+.pdf-viewer-header {
   background: #2c2f32;
   width: 100%;
   height: 50px;
@@ -22,11 +22,11 @@
   justify-content: space-between;
 }
 
-.k-common-pdf-viewer-header .title {
+.pdf-viewer-header .title {
   font-size: 20px;
 }
 
-.k-common-pdf-viewer-header .nav input {
+.pdf-viewer-header .nav input {
   background: inherit;
   border: none;
   width: 23px;
@@ -39,11 +39,49 @@
   line-height: inherit;
 }
 
-.k-common-pdf-viewer-header .nav input:focus {
+.pdf-viewer-header .nav input:focus {
   background: rgb(22, 23, 25);
 }
 
-.k-common-pdf-viewer-page-list > div {
+.pdf-viewer-action-btns {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  right: 10px;
+  width: 100px;
+  padding-bottom: 20px;
+  bottom: 0;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.pdf-viewer-action-btns > .MuiButtonBase-root.MuiFab-root {
+  background: rgb(240, 240, 240);
+  width: 40px;
+  height: 40px;
+  position: relative;
+  transition: 1s;
+  right: -100px;
+}
+.pdf-viewer-action-btns > .MuiButtonBase-root.MuiFab-root:not(:last-of-type) {
+  margin-bottom: 8px;
+}
+.pdf-viewer-action-btns > .MuiButtonBase-root.MuiFab-root.btn-list {
+  margin-bottom: 20px;
+}
+.pdf-viewer-action-btns:hover > .MuiButtonBase-root.MuiFab-root {
+  transition: 1s;
+  right: 5px;
+}
+
+.pdf-viewer-page-list > div {
   position: relative;
   margin-top: 60px;
+}
+
+.pdf-viewer-thumbnail {
+  position: absolute !important;
+  right: 0;
+  top: 0;
+  padding-top: 50px;
 }
