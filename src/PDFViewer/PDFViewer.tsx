@@ -1,9 +1,9 @@
-import React, {
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
+/**
+ * @Date: 2019-10-11 18:45:52
+ * @LastEditors: Tian Zhi
+ * @LastEditTime: 2019-11-04 17:53:06
+ */
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import "./PDFViewer.css";
 import { Document, Page, pdfjs } from "react-pdf";
 import {
@@ -12,60 +12,36 @@ import {
   FixedSizeList,
   ListOnItemsRenderedProps
 } from "react-window";
-import Fab from "@material-ui/core/Fab";
+import { Fab, LinearProgress as Progress } from "@material-ui/core";
 import {
   Add as AddIcon,
   Remove as RemoveIcon,
   RotateLeft as ResetIcon,
   FormatListBulleted as ListIcon
 } from "@material-ui/icons";
+import { PDFRowItemData, PDFViewerInfo } from "./type";
+import {
+  INITIAL_PAGE_HEIGHT,
+  INITIAL_PAGE_SCALE,
+  NUMBER_PATTERN,
+  SCALE_MAX_VAL,
+  SCALE_MIN_VAL,
+  PAGE_SCALE_INTERVAL,
+  CONTAINER_HEIGHT
+} from "./const";
+import Thumbnail from "./Thumbnail";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 type Props = ISFCPdfViewerProps;
 type ScaleChangeType = "add" | "minus";
 
-export interface ISFCPdfViewerProps {}
-interface PDFViewerInfo {
-  pageNum?: number; // 当前页码
-  numPages: number; // 总页数
-  pageHeight: number; // 页高
-  title?: string; // PDF标题
-  pageScale: number;
+export interface ISFCPdfViewerProps {
+  file: any;
+  showThumbnail?: boolean;
 }
-interface PDFRowItemData {
-  onComputeHeight: (isThumbnail?: boolean) => void;
-  pageScale: number;
-}
-interface PDFThumbnailItemData {
-  onClickThumbnail: (index: number) => void;
-}
-interface PDFRowProps extends ListChildComponentProps {
+export interface PDFRowProps extends ListChildComponentProps {
   data: PDFRowItemData;
 }
-interface PDFThumbnailProps extends ListChildComponentProps {
-  data: PDFThumbnailItemData
-}
-
-const NUMBER_PATTERN = /^[1-9][0-9]*$/;
-
-// 初始PDF页面高度，注意：不能设置为0，为0时无法render page
-const INITIAL_PAGE_HEIGHT = 1;
-
-// page scale
-const INITIAL_PAGE_SCALE = 1.0;
-const SCALE_MAX_VAL = 2;
-const SCALE_MIN_VAL = 0.5;
-// pageScale变化范围
-const PAGE_SCALE_INTERVAL = 0.1;
-
-// width & height
-const CONTAINER_HEIGHT = 720;
-const HEADER_HEIGHT = 50;
-const THUMBNAIL_ITEM_HEIGHT = 128;
-const THUMBNAIL_HEIGHT = CONTAINER_HEIGHT - HEADER_HEIGHT;
-const THUMBNAIL_WIDTH = 150;
-
-const pdfFile = "https://pdfobject.com/pdf/sample-3pp.pdf";
 
 const PDFPage = ({ index, style, data }: PDFRowProps) => {
   const { onComputeHeight, pageScale } = data;
@@ -75,23 +51,14 @@ const PDFPage = ({ index, style, data }: PDFRowProps) => {
         pageNumber={index + 1}
         onRenderSuccess={() => onComputeHeight()}
         scale={pageScale}
+        loading=""
       />
-    </div>
-  );
-};
-const PDFThumbnail = ({ index, style, data }: PDFThumbnailProps) => {
-  const { onClickThumbnail } = data;
-  return (
-    <div style={style}>
-      <div className="thumbnail-item" onClick={() => onClickThumbnail(index)}>
-        <Page pageNumber={index + 1} height={THUMBNAIL_ITEM_HEIGHT} renderTextLayer={false} />
-      </div>
-      <div className="thumbnail-page-num">{index+1}</div>
     </div>
   );
 };
 
 export function SFCPdfViewer(props: Props) {
+  const { showThumbnail, file } = props;
   const [pdfInfo, setPdfInfo] = useState<PDFViewerInfo>({
     numPages: 0,
     pageHeight: INITIAL_PAGE_HEIGHT,
@@ -102,7 +69,8 @@ export function SFCPdfViewer(props: Props) {
     pageNum
   ]);
   const listRef = useRef<FixedSizeList | null>(null);
-  const [showThumbnail, toggleShowThumbnail] = useState(false);
+  // props的showThumbnail指是否渲染，state则表示显示状态
+  const [thumbnailVisible, toggleThumbnailVisible] = useState(false);
 
   const handleChangePageNumber = useCallback(
     (val: string, onBlur?: boolean, onPressEnter?: boolean) => {
@@ -140,16 +108,15 @@ export function SFCPdfViewer(props: Props) {
     if (listRef.current) {
       listRef.current.scrollToItem(index, "start");
     }
-  }, [])
+  }, []);
 
   // pass props to PDFRow & PDFThumbnail
   const rowItemData: PDFRowItemData = useMemo(
-    () => ({ onComputeHeight: computePdfPageHeight, pageScale }),
+    () => ({
+      onComputeHeight: computePdfPageHeight,
+      pageScale
+    }),
     [computePdfPageHeight, pageScale]
-  );
-  const thumbnailItemData: PDFThumbnailItemData = useMemo(
-    () => ({ onClickThumbnail: handleClickThumbnailItem }),
-    [handleClickThumbnailItem]
   );
 
   // 监听scroll并更新pageNum
@@ -187,15 +154,15 @@ export function SFCPdfViewer(props: Props) {
   );
 
   const handleShowThumbnail = useCallback(() => {
-    toggleShowThumbnail(true);
+    toggleThumbnailVisible(true);
   }, []);
   const handleMainClick = useCallback(() => {
-    toggleShowThumbnail(false);
+    toggleThumbnailVisible(false);
   }, []);
 
   return (
     <Document
-      file={pdfFile}
+      file={file}
       className="pdf-viewer"
       onLoadSuccess={pdfDocProxy => {
         const { numPages } = pdfDocProxy;
@@ -209,6 +176,7 @@ export function SFCPdfViewer(props: Props) {
       onLoadError={error =>
         console.log("Error while loading document! " + error.message)
       }
+      loading={<Progress />}
     >
       <div className="pdf-viewer-header">
         <span className="title">{title}</span>
@@ -256,16 +224,13 @@ export function SFCPdfViewer(props: Props) {
         </List>
       </div>
       <div className="pdf-viewer-side">
-        <List
-          height={THUMBNAIL_HEIGHT}
-          itemCount={numPages}
-          itemSize={THUMBNAIL_ITEM_HEIGHT + 20}
-          itemData={thumbnailItemData}
-          width={THUMBNAIL_WIDTH}
-          className={`pdf-viewer-thumbnail ${!showThumbnail ? "hidden" : ""}`}
-        >
-          {PDFThumbnail}
-        </List>
+        {showThumbnail && (
+          <Thumbnail
+            numPages={numPages}
+            onClickThumbnail={handleClickThumbnailItem}
+            show={thumbnailVisible}
+          />
+        )}
       </div>
     </Document>
   );
