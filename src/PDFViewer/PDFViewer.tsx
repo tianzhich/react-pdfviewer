@@ -1,7 +1,7 @@
 /**
  * @Date: 2019-10-11 18:45:52
  * @LastEditors: Tian Zhi
- * @LastEditTime: 2019-11-04 20:31:01
+ * @LastEditTime: 2019-11-04 20:54:59
  */
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import "./PDFViewer.css";
@@ -31,7 +31,7 @@ import {
   CONTAINER_WIDTH
 } from "./const";
 import Thumbnail from "./Thumbnail";
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://static.yximgs.com/udata/pkg/KS-EFF/pdf.worker.2.1.266.js`;
 
 type Props = ISFCPdfViewerProps;
 type ScaleChangeType = "add" | "minus";
