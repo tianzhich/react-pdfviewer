@@ -17,9 +17,9 @@ export const PAGE_SCALE_INTERVAL = 0.1;
 
 // width & height
 export const CONTAINER_HEIGHT = 720;
-export const CONTAINER_HEIGHT_HEADER_HEIGHT = 50;
+export const CONTAINER_WIDTH = 680;
+export const CONTAINER_HEADER_HEIGHT = 50;
 export const THUMBNAIL_ITEM_HEIGHT = 128;
-export const THUMBNAIL_HEIGHT = CONTAINER_HEIGHT - CONTAINER_HEIGHT_HEADER_HEIGHT;
 export const THUMBNAIL_WIDTH = 150;
 
 export const PDF_FILE = "https://pdfobject.com/pdf/sample-3pp.pdf";

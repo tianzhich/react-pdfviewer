@@ -1,7 +1,7 @@
 /**
  * @Date: 2019-10-11 18:45:52
  * @LastEditors: Tian Zhi
- * @LastEditTime: 2019-11-04 18:17:49
+ * @LastEditTime: 2019-11-04 20:31:01
  */
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import "./PDFViewer.css";
@@ -27,7 +27,8 @@ import {
   SCALE_MAX_VAL,
   SCALE_MIN_VAL,
   PAGE_SCALE_INTERVAL,
-  CONTAINER_HEIGHT
+  CONTAINER_HEIGHT,
+  CONTAINER_WIDTH
 } from "./const";
 import Thumbnail from "./Thumbnail";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
@@ -38,6 +39,8 @@ type ScaleChangeType = "add" | "minus";
 export interface ISFCPdfViewerProps {
   file: any;
   showThumbnail?: boolean;
+  width?: number;
+  height?: number;
 }
 export interface PDFRowProps extends ListChildComponentProps {
   data: PDFRowItemData;
@@ -51,14 +54,15 @@ const PDFPage = ({ index, style, data }: PDFRowProps) => {
         pageNumber={index + 1}
         onRenderSuccess={() => onComputeHeight()}
         scale={pageScale}
-        loading=""
       />
     </div>
   );
 };
 
 export function SFCPdfViewer(props: Props) {
-  const { showThumbnail, file } = props;
+  const { showThumbnail, file, width, height } = props;
+  const containerHeight = height || CONTAINER_HEIGHT;
+  const containerWidth = width || CONTAINER_WIDTH;
   const [pdfInfo, setPdfInfo] = useState<PDFViewerInfo>({
     numPages: 0,
     pageHeight: INITIAL_PAGE_HEIGHT,
@@ -161,78 +165,89 @@ export function SFCPdfViewer(props: Props) {
   }, []);
 
   return (
-    <Document
-      file={file}
-      className="pdf-viewer"
-      onLoadSuccess={pdfDocProxy => {
-        const { numPages } = pdfDocProxy;
-        pdfDocProxy.getMetadata().then(res => {
-          const {
-            info: { Title }
-          } = res;
-          setPdfInfo(prev => ({ ...prev, title: Title, pageNum: 1, numPages }));
-        });
-      }}
-      onLoadError={error =>
-        console.log("Error while loading document! " + error.message)
-      }
-      loading={<Progress />}
+    <div
+      className="pdf-viewer-container"
+      style={{ height: containerHeight, width: containerWidth }}
     >
-      <div className="pdf-viewer-header">
-        <span className="title">{title}</span>
-        <span className="nav">
-          <input
-            value={pageNumStr}
-            onChange={e => handleChangePageNumber(e.target.value)}
-            onBlur={e => handleChangePageNumber(e.target.value, true)}
-            onKeyPress={e => {
-              if (e.key === "Enter") {
-                e.target.dispatchEvent(new Event("blur"));
-              }
-            }}
-          />
-          / {numPages}
-        </span>
-      </div>
-      <div className="pdf-viewer-action-btns">
-        <Fab className="btn-list" onClick={handleShowThumbnail}>
-          <ListIcon />
-        </Fab>
-        <Fab onClick={() => setPdfInfo({ ...pdfInfo, pageScale: 1 })}>
-          <ResetIcon />
-        </Fab>
-        <Fab onClick={() => handleScaleChange("add")}>
-          <AddIcon />
-        </Fab>
-        <Fab onClick={() => handleScaleChange("minus")}>
-          <RemoveIcon />
-        </Fab>
-      </div>
-      <div className="pdf-viewer-main" onClick={handleMainClick}>
-        <List
-          height={CONTAINER_HEIGHT}
-          itemCount={numPages}
-          itemSize={pageHeight}
-          itemData={rowItemData}
-          width={"100%"}
-          className="pdf-viewer-page-list"
-          ref={listRef}
-          // onScroll={handleScroll}
-          onItemsRendered={handleItemsRendered}
-        >
-          {PDFPage}
-        </List>
-      </div>
-      <div className="pdf-viewer-side">
-        {showThumbnail && (
-          <Thumbnail
-            numPages={numPages}
-            onClickThumbnail={handleClickThumbnailItem}
-            show={thumbnailVisible}
-          />
-        )}
-      </div>
-    </Document>
+      <Document
+        file={file}
+        className="pdf-viewer"
+        onLoadSuccess={pdfDocProxy => {
+          const { numPages } = pdfDocProxy;
+          pdfDocProxy.getMetadata().then(res => {
+            const {
+              info: { Title }
+            } = res;
+            setPdfInfo(prev => ({
+              ...prev,
+              title: Title,
+              pageNum: 1,
+              numPages
+            }));
+          });
+        }}
+        onLoadError={error =>
+          console.log("Error while loading document! " + error.message)
+        }
+        loading={<Progress />}
+      >
+        <div className="pdf-viewer-header">
+          <span className="title">{title}</span>
+          <span className="nav">
+            <input
+              value={pageNumStr}
+              onChange={e => handleChangePageNumber(e.target.value)}
+              onBlur={e => handleChangePageNumber(e.target.value, true)}
+              onKeyPress={e => {
+                if (e.key === "Enter") {
+                  e.target.dispatchEvent(new Event("blur"));
+                }
+              }}
+            />
+            / {numPages}
+          </span>
+        </div>
+        <div className="pdf-viewer-action-btns">
+          <Fab className="btn-list" onClick={handleShowThumbnail}>
+            <ListIcon />
+          </Fab>
+          <Fab onClick={() => setPdfInfo({ ...pdfInfo, pageScale: 1 })}>
+            <ResetIcon />
+          </Fab>
+          <Fab onClick={() => handleScaleChange("add")}>
+            <AddIcon />
+          </Fab>
+          <Fab onClick={() => handleScaleChange("minus")}>
+            <RemoveIcon />
+          </Fab>
+        </div>
+        <div className="pdf-viewer-main" onClick={handleMainClick}>
+          <List
+            height={containerHeight}
+            itemCount={numPages}
+            itemSize={pageHeight}
+            itemData={rowItemData}
+            width={"100%"}
+            className="pdf-viewer-page-list"
+            ref={listRef}
+            // onScroll={handleScroll}
+            onItemsRendered={handleItemsRendered}
+          >
+            {PDFPage}
+          </List>
+        </div>
+        <div className="pdf-viewer-side">
+          {showThumbnail && (
+            <Thumbnail
+              numPages={numPages}
+              onClickThumbnail={handleClickThumbnailItem}
+              show={thumbnailVisible}
+              height={containerHeight}
+            />
+          )}
+        </div>
+      </Document>
+    </div>
   );
 }
 

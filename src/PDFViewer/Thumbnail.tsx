@@ -1,14 +1,14 @@
 /**
  * @Date: 2019-11-04 15:59:15
  * @LastEditors: Tian Zhi
- * @LastEditTime: 2019-11-04 16:36:57
+ * @LastEditTime: 2019-11-04 18:52:58
  */
 import React, { SFC } from "react";
 import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import {
-  THUMBNAIL_HEIGHT,
   THUMBNAIL_ITEM_HEIGHT,
-  THUMBNAIL_WIDTH
+  THUMBNAIL_WIDTH,
+  CONTAINER_HEADER_HEIGHT
 } from "./const";
 import { PDFThumbnailItemData } from "./type";
 import { Page } from "react-pdf";
@@ -17,6 +17,7 @@ type Prop = {
   numPages: number;
   onClickThumbnail: (index: number) => void;
   show?: boolean;
+  height: number;
 };
 
 export interface PDFThumbnailProps extends ListChildComponentProps {
@@ -40,13 +41,14 @@ const PDFThumbnail = ({ index, style, data }: PDFThumbnailProps) => {
 };
 
 const Thumbnail: SFC<Prop> = props => {
-  const { numPages, onClickThumbnail, show } = props;
+  const { numPages, onClickThumbnail, show, height } = props;
+  const thumbnailHeight = height - CONTAINER_HEADER_HEIGHT;
   const itemData: PDFThumbnailItemData = {
     onClickThumbnail
   };
   return (
     <List
-      height={THUMBNAIL_HEIGHT}
+      height={thumbnailHeight}
       itemCount={numPages}
       itemSize={THUMBNAIL_ITEM_HEIGHT + 20}
       itemData={itemData}

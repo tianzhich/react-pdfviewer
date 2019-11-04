@@ -1,8 +1,7 @@
 .pdf-viewer {
-  width: 680px;
-  height: 720px;
   background: rgb(82, 86, 89);
   position: relative;
+  height: inherit;
 }
 
 .react-pdf__Page__canvas {
@@ -77,6 +76,10 @@
 .pdf-viewer-page-list > div {
   position: relative;
   margin-top: 60px;
+}
+
+.pdf-viewer-main {
+  height: inherit;
 }
 
 .pdf-viewer-side {
