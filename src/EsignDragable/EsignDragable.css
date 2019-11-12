@@ -1,0 +1,9 @@
+.esign-dragable {
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+}
+
+.esign-dragable > img {
+  width: 100px;
+}

@@ -1,7 +1,12 @@
 .App {
   background: #f7f8f9;
   height: 100vh;
-  padding-top: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.App > .esign-dragable {
+  margin-left: 20px;
 }
 
 .App .pdf-viewer-container {
