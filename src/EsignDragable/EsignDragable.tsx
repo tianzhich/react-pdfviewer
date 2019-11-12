@@ -1,11 +1,11 @@
 /**
  * @Date: 2019-11-11 18:00:44
  * @LastEditors: Tian Zhi
- * @LastEditTime: 2019-11-12 18:11:39
+ * @LastEditTime: 2019-11-12 18:44:30
  */
 import React, { SFC } from "react";
 import "./EsignDragable.css";
-import KwaiLogo from "../assets/sign-stamp.png";
+import KwaiLogo from "../assets/stamp.png";
 import { DragType, DragPosition } from ".";
 import { useDrag, DragObjectWithType, useDrop } from "react-dnd";
 
@@ -29,8 +29,8 @@ const EsignDragable: SFC<Prop> = props => {
   });
 
   return (
-    <div className="esign-dragable">
-      <img src={KwaiLogo} alt="" ref={dragWrapper} />
+    <div className="esign-dragable" ref={dragWrapper}>
+      <img src={KwaiLogo} alt="" />
     </div>
   );
 };

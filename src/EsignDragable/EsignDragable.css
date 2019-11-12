@@ -1,9 +1,14 @@
 .esign-dragable {
-  height: 100%;
+  width: 130px;
+  height: 130px;
+  cursor: move;
+  border: 1px dashed #fdd435;
+  background: rgba(254, 236, 164, 0.7);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 }
 
 .esign-dragable > img {
-  width: 100px;
+  width: 120px;
 }

@@ -5,14 +5,20 @@
   align-items: center;
 }
 
-.App > .esign-dragable {
-  margin-left: 20px;
+.App > .dragable-container {
+  height: 100%;
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .App .pdf-viewer-container {
-  margin: 0 auto;
+  margin-right: 40px;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }

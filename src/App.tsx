@@ -22,8 +22,15 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <DndProvider backend={H5Backend}>
-        <EsignDragable type={DragType.SignDrag} />
-        <PDFViewer file={LONG_PDF} showThumbnail={true} stamps={addedStamps} onUpdateStamps={updateAddedStamps} />
+        <div className="dragable-container">
+          <EsignDragable type={DragType.SignDrag} />
+        </div>
+        <PDFViewer
+          file={LONG_PDF}
+          showThumbnail={true}
+          stamps={addedStamps}
+          onUpdateStamps={updateAddedStamps}
+        />
       </DndProvider>
     </div>
   );
