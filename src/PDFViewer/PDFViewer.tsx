@@ -1,9 +1,15 @@
 /**
  * @Date: 2019-10-11 18:45:52
  * @LastEditors: Tian Zhi
- * @LastEditTime: 2019-11-12 18:28:56
+ * @LastEditTime: 2019-11-13 11:55:55
  */
-import React, { useState, useCallback, useMemo, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  forwardRef
+} from "react";
 import "./PDFViewer.css";
 import { Document, Page, pdfjs } from "react-pdf";
 import {
@@ -28,7 +34,8 @@ import {
   SCALE_MIN_VAL,
   PAGE_SCALE_INTERVAL,
   CONTAINER_HEIGHT,
-  CONTAINER_WIDTH
+  CONTAINER_WIDTH,
+  PDF_PAGE_MARGIN_TOP
 } from "./const";
 import Thumbnail from "./Thumbnail";
 import { useDrop } from "react-dnd";
@@ -51,34 +58,37 @@ export interface ISFCPdfViewerProps {
 export interface PDFRowProps extends ListChildComponentProps {
   data: PDFRowItemData;
 }
+interface StampContainerProps {
+  stamp: DragObject;
+  onDeleteStamp: (id: number) => void;
+}
 
-const PDFPage = ({ index, style, data }: PDFRowProps) => {
-  const { onComputeHeight, pageScale, stamps = [], onDeleteStamp } = data;
-  const deleteStamp = useCallback((id: number) => {
-    if (onDeleteStamp) onDeleteStamp(id);
-  }, [onDeleteStamp])
+const PDFPage = (props: PDFRowProps) => {
+  const { index, style, data } = props;
+  const { onComputeHeight, pageScale } = data;
   return (
-    <>
-      {index === 0 &&
-        stamps.map(
-          s =>
-            s.pos && (
-              <div className="stamp-container" key={s.id} style={{ top: s.pos.y, left: s.pos.x }}>
-                <span className="icon-close" onClick={() => deleteStamp(s.id)}>x</span>
-                <EsignDragable type={DragType.SignStamp} id={s.id} />
-              </div>
-            )
-        )}
-      <div style={style}>
-        <Page
-          pageNumber={index + 1}
-          onRenderSuccess={() => onComputeHeight()}
-          scale={pageScale}
-          loading=""
-        />
-      </div>
-    </>
+    <div style={style}>
+      <Page
+        pageNumber={index + 1}
+        onRenderSuccess={() => onComputeHeight()}
+        scale={pageScale}
+        loading=""
+      />
+    </div>
   );
+};
+
+const StampContainer = (props: StampContainerProps) => {
+  const { stamp, onDeleteStamp } = props;
+  const { id, pos } = stamp;
+  return pos ? (
+    <div className="stamp-container" style={{ top: pos.y, left: pos.x }}>
+      <span className="icon-close" onClick={() => onDeleteStamp(id)}>
+        x
+      </span>
+      <EsignDragable type={DragType.SignStamp} id={id} />
+    </div>
+  ) : null;
 };
 
 export function SFCPdfViewer(props: Props) {
@@ -190,35 +200,44 @@ export function SFCPdfViewer(props: Props) {
     if (el && initOffset) {
       const { x, y } = initOffset;
       const { top, left } = el.getBoundingClientRect();
-      return { x: x - left, y: y - top };
+      return { x: x - left, y: y - top + PDF_PAGE_MARGIN_TOP };
     }
     return null;
   }, []);
 
-  const addStamp = useCallback((id: number, pos: DragPosition) => {
-    const newStamps: DragObject[] = [
-      ...stamps,
-      { id, pos, type: DragType.SignStamp }
-    ];
-    if (onUpdateStamps) onUpdateStamps(newStamps);
-  }, [stamps, onUpdateStamps]);
-  const moveStamp = useCallback((id: number, posMoved: DragPosition) => {
-    const editStamp = stamps.find(s => s.id === id);
-    if (editStamp && editStamp.pos) {
-      const prevPos = editStamp.pos;
-      const newPos: DragPosition = {
-        x: prevPos.x + posMoved.x,
-        y: prevPos.y + posMoved.y
-      };
-      editStamp.pos = newPos;
-      const newStamps = stamps.map(s => (s.id === id ? editStamp : s));
+  const addStamp = useCallback(
+    (id: number, pos: DragPosition) => {
+      const newStamps: DragObject[] = [
+        ...stamps,
+        { id, pos, type: DragType.SignStamp }
+      ];
       if (onUpdateStamps) onUpdateStamps(newStamps);
-    }
-  }, [stamps, onUpdateStamps]);
-  const deleteStamp = useCallback((id: number) => {
-    const newStamps = stamps.filter(s => s.id !== id);
-    if (onUpdateStamps) onUpdateStamps(newStamps);
-  }, [stamps, onUpdateStamps])
+    },
+    [stamps, onUpdateStamps]
+  );
+  const moveStamp = useCallback(
+    (id: number, posMoved: DragPosition) => {
+      const editStamp = stamps.find(s => s.id === id);
+      if (editStamp && editStamp.pos) {
+        const prevPos = editStamp.pos;
+        const newPos: DragPosition = {
+          x: prevPos.x + posMoved.x,
+          y: prevPos.y + posMoved.y
+        };
+        editStamp.pos = newPos;
+        const newStamps = stamps.map(s => (s.id === id ? editStamp : s));
+        if (onUpdateStamps) onUpdateStamps(newStamps);
+      }
+    },
+    [stamps, onUpdateStamps]
+  );
+  const deleteStamp = useCallback(
+    (id: number) => {
+      const newStamps = stamps.filter(s => s.id !== id);
+      if (onUpdateStamps) onUpdateStamps(newStamps);
+    },
+    [stamps, onUpdateStamps]
+  );
   const [, dropWrapper] = useDrop<DragObject, {}, {}>({
     accept: [DragType.SignDrag, DragType.SignStamp],
     drop: (item, monitor) => {
@@ -230,7 +249,7 @@ export function SFCPdfViewer(props: Props) {
         const id = new Date().getTime();
         if (initOffset && initPos) {
           addStamp(id, initPos);
-          console.log('added! pos:', id, initPos);
+          // console.log("added! pos:", id, initPos);
           return item;
         }
       } else if (type === DragType.SignStamp) {
@@ -238,7 +257,7 @@ export function SFCPdfViewer(props: Props) {
         const offsetDiff = monitor.getDifferenceFromInitialOffset();
         if (offsetDiff) {
           moveStamp(id, offsetDiff);
-          console.log('moved! posOffset:', id, offsetDiff);
+          // console.log("moved! posOffset:", id, offsetDiff);
           return item;
         }
       }
@@ -251,10 +270,9 @@ export function SFCPdfViewer(props: Props) {
     () => ({
       onComputeHeight: computePdfPageHeight,
       pageScale,
-      stamps,
-      onDeleteStamp: deleteStamp
+      stamps
     }),
-    [computePdfPageHeight, pageScale, stamps, deleteStamp]
+    [computePdfPageHeight, pageScale, stamps]
   );
 
   return (
@@ -314,8 +332,13 @@ export function SFCPdfViewer(props: Props) {
             <RemoveIcon />
           </Fab>
         </div>
-        <div className="pdf-viewer-main" onClick={handleMainClick} ref={dropWrapper}>
+        <div
+          className="pdf-viewer-main"
+          onClick={handleMainClick}
+          ref={dropWrapper}
+        >
           <List
+            overscanCount={2}
             height={containerHeight}
             itemCount={numPages}
             itemSize={pageHeight}
@@ -325,20 +348,30 @@ export function SFCPdfViewer(props: Props) {
             ref={listRef}
             // onScroll={handleScroll}
             onItemsRendered={handleItemsRendered}
+            innerElementType={forwardRef((props, ref) => {
+              return (
+                <>
+                  <div ref={ref} {...props} />
+                  {stamps.map(s => (
+                    <StampContainer key={s.id} stamp={s} onDeleteStamp={deleteStamp} />
+                  ))}
+                </>
+              );
+            })}
           >
             {PDFPage}
           </List>
         </div>
-        <div className="pdf-viewer-side">
-          {showThumbnail && (
+        {showThumbnail && (
+          <div className="pdf-viewer-side">
             <Thumbnail
               numPages={numPages}
               onClickThumbnail={handleClickThumbnailItem}
               show={thumbnailVisible}
               height={containerHeight}
             />
-          )}
-        </div>
+          </div>
+        )}
       </Document>
     </div>
   );

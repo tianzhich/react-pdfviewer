@@ -21,5 +21,6 @@ export const CONTAINER_WIDTH = 680;
 export const CONTAINER_HEADER_HEIGHT = 50;
 export const THUMBNAIL_ITEM_HEIGHT = 128;
 export const THUMBNAIL_WIDTH = 150;
+export const PDF_PAGE_MARGIN_TOP = 60;
 
 export const PDF_FILE = "https://pdfobject.com/pdf/sample-3pp.pdf";

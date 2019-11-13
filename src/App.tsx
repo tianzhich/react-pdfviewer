@@ -1,7 +1,7 @@
 /**
  * @Date: 2019-10-11 17:41:36
  * @LastEditors: Tian Zhi
- * @LastEditTime: 2019-11-12 17:59:46
+ * @LastEditTime: 2019-11-13 11:33:37
  */
 import React, { useState } from "react";
 import "./App.css";
@@ -27,7 +27,7 @@ const App: React.FC = () => {
         </div>
         <PDFViewer
           file={LONG_PDF}
-          showThumbnail={true}
+          showThumbnail={false}
           stamps={addedStamps}
           onUpdateStamps={updateAddedStamps}
         />
